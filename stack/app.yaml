@@ -1,0 +1,47 @@
+# kubectl apply -f app.yaml
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kcheck
+  labels:
+    type: front-end
+spec:
+  selector:
+    matchLabels:
+      app: kcheck
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: kcheck
+    spec:
+      containers:
+      - name: kcheck
+        image: "kahu/kcheck:1.0.2"
+        imagePullPolicy: IfNotPresent
+        # Some environment values; if not set default values will be used
+        env:
+        - name: COLOUR # HTML colour name for background colour
+          # Examples "Cornsilk","Bisque","Wheat","NavajoWhite","Moccasin","LightSteelBlue","DarkSeaGreen","SeaGreen","Khaki","Silver"
+          value: "Khaki"
+        - name: CONTENT # Content string; useful when checking if deployment has been updated
+          value: "KCheck public"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kcheck-service
+  labels:
+    app: kcheck
+    type: service
+spec:
+  type: LoadBalancer
+  selector:
+    app: kcheck
+  ports:
+    # The external LB port is 80
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
